@@ -77,7 +77,11 @@ docs = [
 ]
 
 [tool.pyright]
-pythonVersion = "3.14"
+# Check against the *minimum* supported version, not the dev version: an
+# explicit pythonVersion overrides the running interpreter, so 3.14 here lets
+# 3.12+ stdlib and typing APIs pass clean on every CI leg and then ImportError
+# at runtime on 3.11. Keep in step with requires-python and ruff target-version.
+pythonVersion = "3.11"
 typeCheckingMode = "strict"
 include = ["src", "tests"]
 reportPrivateUsage = false
