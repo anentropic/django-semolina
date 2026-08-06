@@ -200,6 +200,12 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-.claude/
+# Ignore .claude contents (personal settings, local state) but share the
+# checked-in setup: the SessionStart hook and project settings. Note the
+# glob: git cannot re-include a path whose parent *directory* is excluded,
+# so this must exclude the contents rather than `.claude/` itself.
+.claude/*
+!.claude/hooks/
+!.claude/settings.json
 .opencode/
 .agents/
