@@ -1,0 +1,56 @@
+name: Quality
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.14"]
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: ${{ matrix.python-version }}
+
+      - name: Sync dependencies
+        run: uv sync --locked --dev
+
+      - name: Install prek
+        run: uv tool install prek
+
+      - name: Run quality gates
+        run: prek run --all-files
+
+      - name: Report resolved Django version
+        run: uv run python -c "import django; print('Django', django.get_version())"
+
+      # The universal lock pairs Python 3.11 with Django 5.2 LTS and 3.12+ with
+      # Django 6.x (6.0 dropped Python < 3.12), so the matrix above already
+      # exercises both ends of the supported Django range.
+      - name: Tests
+        run: uv run pytest
+
+      # The one pairing the lock can never produce: the 5.2 LTS floor on a
+      # current Python, which is what conservative Django shops actually run.
+      - name: Tests (Django 5.2 LTS on current Python)
+        if: matrix.python-version == '3.14'
+        run: uv run --with 'django~=5.2.0' pytest
+
+      - name: Cache pruning
+        if: always()
+        run: uv cache prune --ci
