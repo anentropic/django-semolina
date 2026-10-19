@@ -29,7 +29,7 @@ classifiers = [
 dependencies = [
     # Pre-1.0: minor bumps may break API. We own both sides, so the cap costs
     # only a release we'd be cutting anyway — relax to an open bound at 1.0.
-    "semolina>=0.6,<0.7",
+    "semolina>=0.6,<0.8",
     # Floor is a support commitment (5.2 is the current LTS; 4.2 went EOL in
     # April 2026), not a technical minimum. Never cap: that would block
     # consumers from upgrading Django until we cut a release.
